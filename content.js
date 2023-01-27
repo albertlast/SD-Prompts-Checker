@@ -96,15 +96,22 @@ async function processFile(url) {
     document.getElementById("container-stablediffusion").innerHTML +=
       "<br>" +
       "Prompt: " +
-      text +
+      '<div id="container-stablediffusion-promps">' +  
+      '</div>' +
       "<br><br>" +
       "Image Width: " +
-      width +
+      '<span id="container-stablediffusion-width">'+
+      "</span>"+
       " px" +
       "<br>" +
       "Image Height: " +
-      height +
+      '<span id="container-stablediffusion-height">' +
+      "</span>"+
       " px";
+      document.getElementById("container-stablediffusion-promps").innerText = text;
+      document.getElementById("container-stablediffusion-width").innerText = Number.parseInt(width);
+      document.getElementById("container-stablediffusion-height").innerText = Number.parseInt(height);
+
   } catch (error) {
     console.log(error);
   }

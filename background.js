@@ -1,5 +1,5 @@
 // listen for context menu clicks
-chrome.contextMenus.onClicked.addListener((info, tab) => {
+browser.contextMenus.onClicked.addListener((info, tab) => {
   // check if the clicked item was a PNG image
   if (
     info.menuItemId === "check-png" &&
@@ -7,7 +7,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     info.srcUrl.endsWith(".png")
   ) {
     // send a message to the content script with the image URL
-    chrome.tabs.sendMessage(tab.id, {
+    browser.tabs.sendMessage(tab.id, {
       command: "check_png_chunk_data",
       url: info.srcUrl,
     });
@@ -15,7 +15,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 });
 
 // create a context menu item for PNG images
-chrome.contextMenus.create({
+browser.contextMenus.create({
   id: "check-png",
   title: "SD Prompts Checker",
   contexts: ["image"],

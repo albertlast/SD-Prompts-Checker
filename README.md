@@ -1,6 +1,8 @@
 # SD-Prompts-Checker for Firefox
 
-Chrome Extension to check PNG data embedded by Stable Diffusion
+Firefox Extension (Fork of Chrome Extension) to check PNG data embedded by Stable Diffusion
+
+# Orginal
 
 As sharing is caring and it allows any developer to modify my code
 in such a way that it can become for example a Firefox extension/addon,

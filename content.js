@@ -78,25 +78,26 @@ async function processFile(url) {
       }
       offset += chunkLength + 4; // Skip the data and the CRC
     }
-    console.log("Keywords: " + keywords);
-    console.log("Text: " + text);
-    console.log("Image Width: " + width);
-    console.log("Image Height: " + height);
-    console.log("Image Bit Depth: " + bitDepth);
-    console.log("Image Color Type: " + colorType);
-    console.log("Image Compression Method: " + compressionMethod);
-    console.log("Image Filter Method: " + filterMethod);
-    console.log("Image Interlace Method: " + interlaceMethod);
+    // console.log("Keywords: " + keywords);
+    // console.log("Text: " + text);
+    // console.log("Image Width: " + width);
+    // console.log("Image Height: " + height);
+    // console.log("Image Bit Depth: " + bitDepth);
+    // console.log("Image Color Type: " + colorType);
+    // console.log("Image Compression Method: " + compressionMethod);
+    // console.log("Image Filter Method: " + filterMethod);
+    // console.log("Image Interlace Method: " + interlaceMethod);
     document.body.innerHTML += `
 <dialog id="container-stablediffusion">
  <h1>SD Prompts Checker<sup> by Hunter69.com</sup></h1>
- <br>
- Prompt:  <div id="container-stablediffusion-promps"></div>
- <br><br>
- Image Width: <span id="container-stablediffusion-width"> </span> px
- <br>
- Image Height: <span id="container-stablediffusion-height"> </span> px
- <br>
+ <br/>
+ Prompt:  <div id="container-stablediffusion-promps" > </div>
+ <br/><br/>
+ Image Width: <span id="container-stablediffusion-width" > </span> px
+ <br/>
+ Image Height: <span id="container-stablediffusion-height" > </span> px
+ <br/>
+ <br/>
  <form method="dialog">
  <button> close </button>
  </form>

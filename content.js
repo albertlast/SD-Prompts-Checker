@@ -81,6 +81,10 @@ async function processFile(url) {
       }
       offset += chunkLength + 4; // Skip the data and the CRC
     }
+
+    // when no text is found stop here
+    if (text === "") return;
+
     // console.log("Keywords: " + keywords);
     // console.log("Text: " + text);
     // console.log("Image Width: " + width);

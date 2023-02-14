@@ -7,6 +7,7 @@ chrome.runtime.onMessage.addListener((message) => {
 async function processFile(url) {
   try {
     const response = await fetch("https://corsproxy.io/?" + url);
+    if (!response.headers.get("Content-Type").startsWith("image")) return;
     const arrayBuffer = await response.arrayBuffer();
     const byteArray = new Uint8Array(arrayBuffer);
 

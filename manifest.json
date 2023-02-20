@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name":"SD Prompts Checker",
-  "version":"1.4",
+  "version":"1.5",
   "icons":{
       "16":"16.png",
       "32":"32.png",
@@ -9,7 +9,7 @@
   },
   "background":{
       "scripts":["background.js"],
-      "persistent": false
+      "persistent": true
   },
   "content_scripts":[
       {

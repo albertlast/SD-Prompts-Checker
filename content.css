@@ -1,5 +1,5 @@
 #container-stablediffusion {
-    --sd-border-color: #142961;
+    --sd-border-color: #173177;
     --sd-font-color: white;
     --sd-background-color: rgb(0 0 0 / 75%);
     background-color: var(--sd-background-color);

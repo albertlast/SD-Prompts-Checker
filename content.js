@@ -99,18 +99,19 @@ async function processFile(url) {
     // console.log("Image Interlace Method: " + interlaceMethod);
     document.body.innerHTML += `
 <dialog id="container-stablediffusion">
- <h1>SD Prompts Checker<sup> by Hunter69.com</sup></h1>
- <br/>
- Prompt:  <div id="container-stablediffusion-promps" > </div>
- <br/><br/>
- Image Width: <span id="container-stablediffusion-width" > </span> px
- <br/>
- Image Height: <span id="container-stablediffusion-height" > </span> px
- <br/>
- <br/>
- <form method="dialog">
- <button> close </button>
- </form>
+  <form method="dialog">
+    <h1>SD Prompts Checker<sup> by Hunter69.com</sup></h1>
+    <br/>
+    Prompt:  <div id="container-stablediffusion-promps" > </div>
+    <br/><br/>
+    Image Width: <span id="container-stablediffusion-width" > </span> px
+    <br/>
+    Image Height: <span id="container-stablediffusion-height" > </span> px
+    <br/>
+    <br/>
+
+    <button> Close </button>
+  </form>
 </dialog>
 `;
     document.getElementById("container-stablediffusion-promps").innerText =

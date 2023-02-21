@@ -100,7 +100,7 @@ async function processFile(url) {
     document.body.innerHTML += `
 <dialog id="container-stablediffusion">
   <form method="dialog">
-    <h1>SD Prompts Checker<sup> by Hunter69.com</sup></h1>
+    <h1>SD Prompts Checker<sup> by albertlast (orginal Hunter69.com)</sup></h1>
     <br/>
     Prompt:  <div id="container-stablediffusion-promps" > </div>
     <br/><br/>

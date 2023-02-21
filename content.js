@@ -83,7 +83,10 @@ async function processFile(url) {
     }
 
     // when no text is found stop here
-    if (text === "") return;
+    if (text === "") {
+      console.info("no prompts found");
+      return;
+    }
 
     // console.log("Keywords: " + keywords);
     // console.log("Text: " + text);

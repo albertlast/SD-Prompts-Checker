@@ -97,40 +97,41 @@ async function processFile(url) {
     // console.log("Image Compression Method: " + compressionMethod);
     // console.log("Image Filter Method: " + filterMethod);
     // console.log("Image Interlace Method: " + interlaceMethod);
-    document.body.innerHTML += `
-<dialog id="container-stablediffusion">
-  <form method="dialog">
-    <h1>SD Prompts Checker<sup> by albertlast (orginal Hunter69.com)</sup></h1>
-    <br/>
-    Prompt:  <div id="container-stablediffusion-promps" > </div>
-    <br/><br/>
-    Image Width: <span id="container-stablediffusion-width" > </span> px
-    <br/>
-    Image Height: <span id="container-stablediffusion-height" > </span> px
-    <br/>
-    <br/>
+    let dialog = document.createElement("dialog");
+    dialog.id = "container-stablediffusion";
+    dialog.innerHTML += `
+      <form method="dialog">
+        <h1>SD Prompts Checker<sup> by albertlast (orginal Hunter69.com)</sup></h1>
+        <br/>
+        Prompt:  <div id="container-stablediffusion-promps" > </div>
+        <br/><br/>
+        Image Width: <span id="container-stablediffusion-width" > </span> px
+        <br/>
+        Image Height: <span id="container-stablediffusion-height" > </span> px
+        <br/>
+        <br/>
 
-    <button> Close </button>
-  </form>
-</dialog>
-`;
-    document.getElementById("container-stablediffusion-promps").innerText =
-      text;
-    document.getElementById("container-stablediffusion-width").innerText =
+        <button> Close </button>
+      </form>
+    `;
+
+    dialog.querySelector("#container-stablediffusion-promps").innerText = text;
+    dialog.querySelector("#container-stablediffusion-width").innerText =
       Number.parseInt(width);
-    document.getElementById("container-stablediffusion-height").innerText =
+    dialog.querySelector("#container-stablediffusion-height").innerText =
       Number.parseInt(height);
 
-    function onClick(event) {
+    function onClickSD_Prompt(event) {
       if (event.target === dialog) {
         dialog.close();
         dialog.remove();
       }
+      event.stopPropagation();
     }
 
-    const dialog = document.getElementById("container-stablediffusion");
-    dialog.addEventListener("click", onClick);
+    dialog.addEventListener("click", onClickSD_Prompt);
 
+    document.body.appendChild(dialog);
     dialog.showModal();
   } catch (error) {
     console.log(error);

@@ -121,7 +121,8 @@ function pngRead(byteArray) {
     filterMethod,
     interlaceMethod,
     keywords = "",
-    text = "";
+    text = "",
+    textCompressionm = "";
 
   while (offset < byteArray.length) {
     const chunkLength =
@@ -150,7 +151,7 @@ function pngRead(byteArray) {
       const compression = byteArray[offset + keywordData[0].length + 1];
       keywords += keywordData[0] + "; ";
       if (compression === 0) {
-        text += keywordData[2] + "; ";
+        textCompressionm += keywordData[2] + "; ";
       } else {
       }
     } else if (chunkType === "iTXt") {
@@ -182,6 +183,45 @@ function pngRead(byteArray) {
     }
     offset += chunkLength + 4; // Skip the data and the CRC
   }
+
+  // Fallback read UserComment when no uncompressed text was found
+  if (
+    text === "" &&
+    String.fromCharCode(...byteArray.slice(106, 113)) === "UNICODE"
+  ) {
+    let offset = 114;
+    const chunkLength = 4;
+    const length = byteArray.length;
+    let keywordsArray = [];
+
+    while (offset < length) {
+      ChunkData = byteArray.slice(offset, offset + chunkLength);
+      // EOL User Comment
+
+      if (
+        String.fromCharCode(...ChunkData) === "zTXt" ||
+        (String.fromCharCode(...ChunkData).endsWith("zT") &&
+          String.fromCharCode(
+            ...byteArray.slice(offset + chunkLength, offset + chunkLength + 2)
+          ) === "Xt")
+      ) {
+        const removeEle = String.fromCharCode(...ChunkData).endsWith("zT")
+          ? 6
+          : 8;
+        //reached the end remove the last chunk
+        for (i = 0; i < removeEle; i++) {
+          keywordsArray.pop();
+        }
+        keywords = String.fromCharCode(...keywordsArray);
+        break;
+      }
+      keywordsArray.push(...ChunkData);
+      offset += chunkLength;
+    }
+    text = keywords;
+  }
+
+  if (text === "" && textCompressionm !== "") text = textCompressionm;
 
   return {
     width,

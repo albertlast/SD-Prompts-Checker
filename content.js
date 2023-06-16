@@ -22,10 +22,6 @@ async function processFile(url) {
       compressionMethod,
       filterMethod,
       interlaceMethod;
-    let JFIF = String.fromCharCode(...byteArray.slice(6, 10));
-    let Exif = String.fromCharCode(...byteArray.slice(24, 28));
-    let uni = String.fromCharCode(...byteArray.slice(74, 81));
-    debugger;
     // PNG Logic
     if (String.fromCharCode(...byteArray.slice(1, 4)) === "PNG") {
       ({

@@ -161,7 +161,14 @@ function pngRead(byteArray) {
       const keywordData = keyword.split("\0");
       keywords += keywordData[0] + "; ";
       if (keywordData[1] === "") {
-        text += keywordData[3] + "; ";
+        let foundKeywordIndex = null;
+        for (let i = 3; i < keywordData.length; i++) {
+          if (keywordData[i].length > 0) {
+            foundKeywordIndex = i;
+            break;
+          }
+        }
+        if (foundKeywordIndex) text += keywordData[foundKeywordIndex] + "; ";
       } else {
       }
     } else if (chunkType === "IHDR") {

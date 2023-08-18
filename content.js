@@ -40,7 +40,8 @@ async function processFile(url) {
     else if (
       String.fromCharCode(...byteArray.slice(6, 10)) === "JFIF" &&
       String.fromCharCode(...byteArray.slice(24, 28)) === "Exif" &&
-      String.fromCharCode(...byteArray.slice(74, 81)) === "UNICODE"
+      (String.fromCharCode(...byteArray.slice(74, 81)) === "UNICODE" ||
+        String.fromCharCode(...byteArray.slice(70, 77)) === "UNICODE")
     ) {
       console.log("JPEG");
       ({
@@ -244,7 +245,8 @@ function pngRead(byteArray) {
 }
 
 function jpegRead(byteArray) {
-  let offset = 82;
+  let offset =
+    String.fromCharCode(...byteArray.slice(74, 81)) === "UNICODE" ? 82 : 78;
   const chunkLength = 2;
   let width = -1,
     height = -1,

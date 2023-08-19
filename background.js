@@ -1,4 +1,3 @@
-// listen for context menu clicks
 browser.contextMenus.onClicked.addListener((info, tab) => {
   // check if the clicked item was a PNG image
   if (info.menuItemId === "check-png" && info.mediaType === "image") {

@@ -22,8 +22,20 @@ async function processFile(url) {
       compressionMethod,
       filterMethod,
       interlaceMethod;
-    // PNG Logic
-    if (String.fromCharCode(...byteArray.slice(1, 4)) === "PNG") {
+
+    ({
+      width,
+      height,
+      bitDepth,
+      colorType,
+      compressionMethod,
+      filterMethod,
+      interlaceMethod,
+      text,
+      keywords,
+    } = await newReader(arrayBuffer));
+
+    if (text === "") {
       ({
         width,
         height,
@@ -34,28 +46,9 @@ async function processFile(url) {
         interlaceMethod,
         text,
         keywords,
-      } = pngRead(byteArray));
+      } = await oldReader(byteArray));
     }
-    // JPEG
-    else if (
-      String.fromCharCode(...byteArray.slice(6, 10)) === "JFIF" &&
-      String.fromCharCode(...byteArray.slice(24, 28)) === "Exif" &&
-      (String.fromCharCode(...byteArray.slice(74, 81)) === "UNICODE" ||
-        String.fromCharCode(...byteArray.slice(70, 77)) === "UNICODE")
-    ) {
-      console.log("JPEG");
-      ({
-        width,
-        height,
-        bitDepth,
-        colorType,
-        compressionMethod,
-        filterMethod,
-        interlaceMethod,
-        text,
-        keywords,
-      } = jpegRead(byteArray));
-    }
+
     // when no text is found stop here
     if (text === "") {
       console.info("no prompts found");
@@ -136,7 +129,7 @@ function pngRead(byteArray) {
       ...byteArray.slice(offset, offset + 4)
     );
     offset += 4;
-    // debugger;
+
     if (chunkType === "tEXt") {
       const keyword = String.fromCharCode(
         ...byteArray.slice(offset, offset + chunkLength)
@@ -277,6 +270,128 @@ function jpegRead(byteArray) {
   keywords = keywords.replaceAll("\u0000", "");
   text = keywords;
 
+  return {
+    width,
+    height,
+    bitDepth,
+    colorType,
+    compressionMethod,
+    filterMethod,
+    interlaceMethod,
+    text,
+    keywords,
+  };
+}
+
+async function newReader(arrayBuffer) {
+  let width = -1,
+    height = -1,
+    bitDepth,
+    colorType,
+    compressionMethod,
+    filterMethod,
+    interlaceMethod,
+    keywords = "",
+    text = "";
+
+  try {
+    const tags = await ExifReader.load(arrayBuffer);
+    // The MakerNote tag can be really large. Remove it to lower
+    // memory usage if you're parsing a lot of files and saving the
+    // tags.
+    delete tags["MakerNote"];
+    height =
+      typeof tags["Image Height"] === "object" &&
+      typeof tags["Image Height"].value === "number"
+        ? tags["Image Height"].value
+        : -1;
+
+    width =
+      typeof tags["Image Width"] === "object" &&
+      typeof tags["Image Width"].value === "number"
+        ? tags["Image Width"].value
+        : -1;
+
+    text =
+      typeof tags["parameters"] === "object" &&
+      typeof tags.parameters.description === "string"
+        ? tags.parameters.description
+        : "";
+
+    if (
+      text === "" &&
+      typeof tags.UserComment === "object" &&
+      Array.isArray(tags.UserComment.value)
+    ) {
+      const bytesView = new Uint8Array(tags.UserComment.value);
+      text = new TextDecoder().decode(bytesView).replaceAll("\u0000", "");
+      text = text.startsWith("UNICODE") ? text.replace("UNICODE", "") : text;
+    }
+
+    // Use the tags now present in `tags`.
+  } catch (error) {
+    // Handle error.
+
+    console.log(error.toString());
+  }
+  return {
+    width,
+    height,
+    bitDepth,
+    colorType,
+    compressionMethod,
+    filterMethod,
+    interlaceMethod,
+    text,
+    keywords,
+  };
+}
+
+async function oldReader(byteArray) {
+  let width = -1,
+    height = -1,
+    bitDepth,
+    colorType,
+    compressionMethod,
+    filterMethod,
+    interlaceMethod,
+    keywords = "",
+    text = "";
+
+  // PNG Logic
+  if (String.fromCharCode(...byteArray.slice(1, 4)) === "PNG") {
+    ({
+      width,
+      height,
+      bitDepth,
+      colorType,
+      compressionMethod,
+      filterMethod,
+      interlaceMethod,
+      text,
+      keywords,
+    } = pngRead(byteArray));
+  }
+  // JPEG
+  else if (
+    String.fromCharCode(...byteArray.slice(6, 10)) === "JFIF" &&
+    String.fromCharCode(...byteArray.slice(24, 28)) === "Exif" &&
+    (String.fromCharCode(...byteArray.slice(74, 81)) === "UNICODE" ||
+      String.fromCharCode(...byteArray.slice(70, 77)) === "UNICODE")
+  ) {
+    console.log("JPEG");
+    ({
+      width,
+      height,
+      bitDepth,
+      colorType,
+      compressionMethod,
+      filterMethod,
+      interlaceMethod,
+      text,
+      keywords,
+    } = jpegRead(byteArray));
+  }
   return {
     width,
     height,

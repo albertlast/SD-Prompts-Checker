@@ -17,3 +17,6 @@ checkpoint/model from scratch based on 3 million 1024/1280 images
 instead of everyone their low amount of 512/768 images
 
 - Hunter
+
+# Lib
+- exif-reader: https://github.com/mattiasw/ExifReader

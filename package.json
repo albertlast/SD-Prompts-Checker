@@ -4,7 +4,8 @@
   "description": "Firefox Extension (Fork of Chrome Extension) to check PNG data embedded by Stable Diffusion",
   "main": "background.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "move": "cpy ./node_modules/exifreader/dist/exif-reader.js ."
   },
   "repository": {
     "type": "git",
@@ -16,7 +17,9 @@
     "url": "https://github.com/albertlast/SD-Prompts-Checker/issues"
   },
   "homepage": "https://github.com/albertlast/SD-Prompts-Checker#readme",
-  "dependencies": {
-    "exifreader": "^4.17.0"
+  "dependencies": {},
+  "devDependencies": {
+    "exifreader": "^4.17.0",
+    "cpy-cli": "^5.0.0"
   }
 }

@@ -328,6 +328,23 @@ async function newReader(arrayBuffer) {
       text = text.startsWith("UNICODE") ? text.replace("UNICODE", "") : text;
     }
 
+    //InvokeAI
+    if (
+      text === "" &&
+      typeof tags.invokeai_metadata === "object" &&
+      tags.invokeai_metadata.value
+    ) {
+      const invo = JSON.parse(tags.invokeai_metadata.value);
+      if (invo.positive_prompt) {
+        text = invo.positive_prompt;
+        text += invo.negative_prompt
+          ? `
+          Negative prompt: ${invo.negative_prompt}`
+          : "";
+        text += "\n" + tags.invokeai_metadata.value;
+      }
+    }
+
     // Use the tags now present in `tags`.
   } catch (error) {
     // Handle error.

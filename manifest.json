@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "SD Prompts Checker",
-  "version": "2.1",
+  "version": "2.2",
   "icons": {
     "16": "16.png",
     "32": "32.png",

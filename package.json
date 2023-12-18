@@ -19,6 +19,6 @@
   "homepage": "https://github.com/albertlast/SD-Prompts-Checker#readme",
   "devDependencies": {
     "copyfiles": "^2.4.1",
-    "exifreader": "^4.17.0"
+    "exifreader": "^4.19.1"
   }
 }

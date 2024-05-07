@@ -39,7 +39,6 @@ async function processFile(url) {
 
     if (text === "" && colorType === 6 && fileType === "png") {
       // NovelAI Stealth PNG
-      debugger;
       ({
         width,
         height,
@@ -124,7 +123,6 @@ async function processFile(url) {
 }
 
 async function novelAiRead(byteArray, maxWidth, maxHeight) {
-  debugger;
   let text = "",
     textCompressionm = "";
   let aplhaData = {};

@@ -21,7 +21,8 @@ async function processFile(url) {
       colorType,
       compressionMethod,
       filterMethod,
-      interlaceMethod;
+      interlaceMethod,
+      fileType;
 
     ({
       width,
@@ -33,7 +34,24 @@ async function processFile(url) {
       interlaceMethod,
       text,
       keywords,
+      fileType,
     } = await newReader(arrayBuffer));
+
+    if (text === "" && colorType === 6 && fileType === "png") {
+      // NovelAI Stealth PNG
+      debugger;
+      ({
+        width,
+        height,
+        bitDepth,
+        colorType,
+        compressionMethod,
+        filterMethod,
+        interlaceMethod,
+        text,
+        keywords,
+      } = await novelAiRead(byteArray, width, height));
+    }
 
     if (text === "") {
       ({
@@ -105,6 +123,119 @@ async function processFile(url) {
   }
 }
 
+async function novelAiRead(byteArray, maxWidth, maxHeight) {
+  debugger;
+  let text = "",
+    textCompressionm = "";
+  let aplhaData = {};
+  let img = new Blob([byteArray]);
+  let bitmap = await createImageBitmap(img);
+  let canvas = document.createElement("canvas");
+  let ctx = canvas.getContext("2d");
+  canvas.width = bitmap.width;
+  canvas.height = bitmap.height;
+  ctx.drawImage(bitmap, 0, 0, bitmap.width, bitmap.height);
+
+  let imgData = ctx.getImageData(0, 0, bitmap.width, bitmap.height).data;
+  let rows = 0;
+  let cols = 0;
+
+  for (let x = 3; x < imgData.length; x += 4) {
+    if (cols === 0) aplhaData[rows] = {};
+    aplhaData[rows][cols] = imgData[x] & 1;
+    cols++;
+    if (cols === maxWidth) {
+      rows++;
+      cols = 0;
+    }
+  }
+
+  //magic number check
+  const magic = "stealth_pngcomp";
+  let readWidth = 0;
+  let readHeight = 0;
+  let readObj;
+  let pngByte = new Uint8Array();
+  for (let y = 0; y < magic.length; y++) {
+    const tempByte = pngByte;
+    readObj = readBytes(aplhaData, readWidth, readHeight, maxWidth, maxHeight);
+    readWidth = readObj.width;
+    readHeight = readObj.height;
+    pngByte = new Uint8Array(pngByte.length + 1);
+    pngByte.set(tempByte);
+    pngByte.set([readObj.byte], tempByte.length);
+  }
+
+  const magicCode = String.fromCharCode(...pngByte);
+  pngByte = new Uint8Array();
+
+  if (magic !== magicCode) return;
+
+  //get the size of data
+  for (let y = 0; y < 4; y++) {
+    const tempByte = pngByte;
+    readObj = readBytes(aplhaData, readWidth, readHeight, maxWidth, maxHeight);
+    readWidth = readObj.width;
+    readHeight = readObj.height;
+    pngByte = new Uint8Array(pngByte.length + 1);
+    pngByte.set(tempByte);
+    pngByte.set([readObj.byte], tempByte.length);
+  }
+
+  const zipLong = new DataView(pngByte.buffer).getInt32(0, false) / 8;
+  pngByte = new Uint8Array();
+  //read data
+  for (let y = 0; y < zipLong; y++) {
+    const tempByte = pngByte;
+    readObj = readBytes(aplhaData, readWidth, readHeight, maxWidth, maxHeight);
+    readWidth = readObj.width;
+    readHeight = readObj.height;
+    pngByte = new Uint8Array(pngByte.length + 1);
+    pngByte.set(tempByte);
+    pngByte.set([readObj.byte], tempByte.length);
+  }
+
+  let promp = pako.ungzip(pngByte);
+  const utf8decoder = new TextDecoder();
+  promp = JSON.parse(utf8decoder.decode(promp));
+
+  imgData = null;
+  const comment = JSON.parse(promp.Comment);
+  text = comment.prompt ?? "";
+  text += "\n";
+  text += "Negative prompt: " + comment.uc ?? "";
+  text += "\n";
+  delete comment.uc;
+  delete comment.prompt;
+  text += JSON.stringify(comment);
+
+  if (text === "" && textCompressionm !== "") text = textCompressionm;
+
+  return {
+    width: maxWidth,
+    height: maxHeight,
+    text,
+  };
+}
+
+function readBytes(alphaData, width, height, maxWidth, maxHeight) {
+  let byte = 0;
+  for (let i = 0; i < 8; i++) {
+    byte <<= 1;
+    byte |= alphaData[height][width];
+    height++;
+    if (height === maxHeight) {
+      width++;
+      height = 0;
+    }
+  }
+  return {
+    byte,
+    width,
+    height,
+  };
+}
+
 function pngRead(byteArray) {
   let offset = 8;
   let width,
@@ -117,6 +248,19 @@ function pngRead(byteArray) {
     keywords = "",
     text = "",
     textCompressionm = "";
+  const maxLenght = byteArray.length;
+  const chunkLength2 =
+    (byteArray[offset] << 24) |
+    (byteArray[offset + 1] << 16) |
+    (byteArray[offset + 2] << 8) |
+    byteArray[offset + 3];
+  for (let b = 3; b < maxLenght; b = b + 4) {
+    const chunkType = String.fromCharCode(...byteArray.slice(b, b + 4));
+    // debugger;
+    if (chunkType === "stea") {
+      debugger;
+    }
+  }
 
   while (offset < byteArray.length) {
     const chunkLength =
@@ -129,7 +273,7 @@ function pngRead(byteArray) {
       ...byteArray.slice(offset, offset + 4)
     );
     offset += 4;
-
+    debugger;
     if (chunkType === "tEXt") {
       const keyword = String.fromCharCode(
         ...byteArray.slice(offset, offset + chunkLength)
@@ -292,7 +436,8 @@ async function newReader(arrayBuffer) {
     filterMethod,
     interlaceMethod,
     keywords = "",
-    text = "";
+    text = "",
+    fileType;
 
   try {
     const tags = await ExifReader.load(arrayBuffer);
@@ -300,6 +445,17 @@ async function newReader(arrayBuffer) {
     // memory usage if you're parsing a lot of files and saving the
     // tags.
     delete tags["MakerNote"];
+    colorType =
+      typeof tags["Color Type"] === "object" &&
+      typeof tags["Color Type"].value === "number"
+        ? tags["Color Type"].value
+        : -1;
+
+    fileType =
+      typeof tags["FileType"] === "object" &&
+      typeof tags["FileType"].value === "string"
+        ? tags["FileType"].value
+        : null;
     height =
       typeof tags["Image Height"] === "object" &&
       typeof tags["Image Height"].value === "number"
@@ -361,6 +517,7 @@ async function newReader(arrayBuffer) {
     interlaceMethod,
     text,
     keywords,
+    fileType,
   };
 }
 

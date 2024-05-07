@@ -1,11 +1,11 @@
 {
   "name": "sd-prompts-checker",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Firefox Extension (Fork of Chrome Extension) to check PNG data embedded by Stable Diffusion",
   "main": "background.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "move": "copyfiles -f ./node_modules/exifreader/dist/exif-reader.js ."
+    "move": "copyfiles -f ./node_modules/exifreader/dist/exif-reader.js . && copyfiles -f ./node_modules/pako/dist/pako.min.js ."
   },
   "repository": {
     "type": "git",
@@ -19,6 +19,7 @@
   "homepage": "https://github.com/albertlast/SD-Prompts-Checker#readme",
   "devDependencies": {
     "copyfiles": "^2.4.1",
-    "exifreader": "^4.17.0"
+    "exifreader": "^4.17.0",
+    "pako": "^2.1.0"
   }
 }

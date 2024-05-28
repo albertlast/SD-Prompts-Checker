@@ -12,6 +12,7 @@ async function processFile(url) {
     if (!response.headers.get("Content-Type").startsWith("image")) return;
     const arrayBuffer = await response.arrayBuffer();
     const byteArray = new Uint8Array(arrayBuffer);
+    const contentType = response.headers.get("Content-Type");
 
     let keywords = "";
     let text = "";
@@ -36,8 +37,10 @@ async function processFile(url) {
       keywords,
       fileType,
     } = await newReader(arrayBuffer));
-
-    if (text === "" && colorType === 6 && fileType === "png") {
+    if (
+      text === "" &&
+      (contentType === "image/png" || contentType === "image/webp")
+    ) {
       // NovelAI Stealth PNG
       ({
         width,
@@ -49,7 +52,7 @@ async function processFile(url) {
         interlaceMethod,
         text,
         keywords,
-      } = await novelAiRead(byteArray, width, height));
+      } = await novelAiRead(byteArray, contentType));
     }
 
     if (text === "") {
@@ -122,17 +125,21 @@ async function processFile(url) {
   }
 }
 
-async function novelAiRead(byteArray, maxWidth, maxHeight) {
+async function novelAiRead(byteArray, contentType) {
   let text = "",
     textCompressionm = "";
   let aplhaData = {};
-  let img = new Blob([byteArray]);
+  let img = new Blob([byteArray], { type: contentType });
   let bitmap = await createImageBitmap(img);
   let canvas = document.createElement("canvas");
   let ctx = canvas.getContext("2d");
-  canvas.width = bitmap.width;
-  canvas.height = bitmap.height;
-  ctx.drawImage(bitmap, 0, 0, bitmap.width, bitmap.height);
+  let maxWidth = -1;
+  let maxHeight = -1;
+  maxWidth = bitmap.width;
+  maxHeight = bitmap.height;
+  canvas.width = maxWidth;
+  canvas.height = maxHeight;
+  ctx.drawImage(bitmap, 0, 0);
 
   let imgData = ctx.getImageData(0, 0, bitmap.width, bitmap.height).data;
   let rows = 0;
@@ -255,9 +262,9 @@ function pngRead(byteArray) {
   for (let b = 3; b < maxLenght; b = b + 4) {
     const chunkType = String.fromCharCode(...byteArray.slice(b, b + 4));
     // debugger;
-    if (chunkType === "stea") {
-      debugger;
-    }
+    // if (chunkType === "stea") {
+    //   debugger;
+    // }
   }
 
   while (offset < byteArray.length) {
@@ -271,7 +278,6 @@ function pngRead(byteArray) {
       ...byteArray.slice(offset, offset + 4)
     );
     offset += 4;
-    debugger;
     if (chunkType === "tEXt") {
       const keyword = String.fromCharCode(
         ...byteArray.slice(offset, offset + chunkLength)
